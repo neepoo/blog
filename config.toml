@@ -12,85 +12,180 @@ title = "neepoo写字，分享的地方"
 theme = "DoIt"
 
 [params]
-  # DoIt 主题版本
-  version = "0.2.X"
-
+# DoIt 主题版本
+version = "0.2.X"
+[params.page]
+# DoIt 新增 | 0.2.0 是否在主页隐藏一篇文章
+hiddenFromHomePage = false
+# DoIt 新增 | 0.2.0 是否在搜索结果中隐藏一篇文章
+hiddenFromSearch = false
+# DoIt 新增 | 0.2.0 是否使用 twemoji
+twemoji = false
+# 是否使用 lightgallery
+lightgallery = false
+# DoIt 新增 | 0.2.0 是否使用 ruby 扩展语法
+ruby = true
+# DoIt 新增 | 0.2.0 是否使用 fraction 扩展语法
+fraction = true
+# DoIt 新增 | 0.2.0 是否使用 fontawesome 扩展语法
+fontawesome = true
+# 是否在文章页面显示原始 Markdown 文档链接
+linkToMarkdown = true
+# DoIt 新增 | 0.2.4 是否在 RSS 中显示全文内容
+rssFullText = false
+# DoIt 新增 | 0.2.0 目录配置
+[params.page.toc]
+# 是否使用目录
+enable = true
+# DoIt 新增 | 0.2.9 是否保持使用文章前面的静态目录
+keepStatic = false
+# 是否使侧边目录自动折叠展开
+auto = true
+# DoIt 新增 | 0.2.0 代码配置
+[params.page.code]
+# 是否显示代码块的复制按钮
+copy = true
+# 默认展开显示的代码行数
+maxShownLines = 30
+# DoIt 更改 | 0.2.0 KaTeX 数学公式
+[params.page.math]
+enable = true
+# 默认块定界符是 $$ ... $$ 和 \\[ ... \\]
+blockLeftDelimiter = ""
+blockRightDelimiter = ""
+# 默认行内定界符是 $ ... $ 和 \\( ... \\)
+inlineLeftDelimiter = ""
+inlineRightDelimiter = ""
+# KaTeX 插件 copy_tex
+copyTex = true
+# KaTeX 插件 mhchem
+mhchem = true
+# DoIt 新增 | 0.2.0 Mapbox GL JS 配置
+[params.page.mapbox]
+# Mapbox GL JS 的 access token
+accessToken = ""
+# 浅色主题的地图样式
+lightStyle = "mapbox://styles/mapbox/light-v9"
+# 深色主题的地图样式
+darkStyle = "mapbox://styles/mapbox/dark-v9"
+# 是否添加 NavigationControl
+navigation = true
+# 是否添加 GeolocateControl
+geolocate = true
+# 是否添加 ScaleControl
+scale = true
+# 是否添加 FullscreenControl
+fullscreen = true
+# DoIt 更改 | 0.2.0 文章页面的分享信息设置
 [params.page.comment]
-  enable = true
-  [params.page.comment.utterances]
-  enable = true
-  repo = "neepoo/neepoo.dev"
-  issueTerm = "pathname"
-  label = ""
-  lightTheme = "github-light"
-  darkTheme = "github-dark"
- [params.page.share]
-      enable = true
-      Twitter = true
-      Facebook = true
-      Linkedin = false
-      Whatsapp = true
-      Pinterest = false
-      Tumblr = false
-      HackerNews = false
-      Reddit = false
-      VK = false
-      Buffer = false
-      Xing = false
-      Line = true
-      Instapaper = false
-      Pocket = false
-      Digg = false
-      Stumbleupon = false
-      Flipboard = false
-      Weibo = true
-      Renren = false
-      Myspace = true
-      Blogger = true
-      Baidu = false
-      Odnoklassniki = false
-      Evernote = true
-      Skype = false
-      Trello = false
-      Mix = false
+    enable = true
+    [params.page.comment.utterances]
+enable = true
+repo = "neepoo/neepoo.dev"
+issueTerm = "pathname"
+label = ""
+lightTheme = "github-light"
+darkTheme = "github-dark"
+[params.page.share]
+enable = true
+Twitter = true
 
 [params.analytics]
-  enable = true
-  [params.analytics.google]
-    id = "G-CDK4FFQT1T"
-    anonymizeIP = true
+enable = true
+[params.analytics.google]
+id = "G-CDK4FFQT1T"
+anonymizeIP = true
 [menu]
-  [[menu.main]]
-    identifier = "posts"
-    # 你可以在名称 (允许 HTML 格式) 之前添加其他信息, 例如图标
-    pre = ""
-    # 你可以在名称 (允许 HTML 格式) 之后添加其他信息, 例如图标
-    post = ""
-    name = "文章"
-    url = "/posts/"
-    # 当你将鼠标悬停在此菜单链接上时, 将显示的标题
-    title = ""
-    weight = 1
-  [[menu.main]]
-    identifier = "tags"
-    pre = ""
-    post = ""
-    name = "标签"
-    url = "/tags/"
-    title = ""
-    weight = 2
-  [[menu.main]]
-    identifier = "categories"
-    pre = ""
-    post = ""
-    name = "分类"
-    url = "/categories/"
-    title = ""
-    weight = 3
+[[menu.main]]
+identifier = "posts"
+# 你可以在名称 (允许 HTML 格式) 之前添加其他信息, 例如图标
+pre = ""
+# 你可以在名称 (允许 HTML 格式) 之后添加其他信息, 例如图标
+post = ""
+name = "文章"
+url = "/posts/"
+# 当你将鼠标悬停在此菜单链接上时, 将显示的标题
+title = ""
+weight = 1
+[languages]
+[languages.zh-cn]
+weight = 1
+# language code, CN only here
+languageCode = "zh-CN"
+languageName = "Simplified Chinese"
+# whether to include Chinese/Japanese/Korean
+hasCJKLanguage = true
+
+[languages.zh-cn.params.home.profile]
+enable = true
+# Gravatar 邮箱，用于优先在主页显示的头像
+# gravatarEmail = "xiaoyin_c@qq.com"
+# 主页显示头像的 URL
+avatarURL = "/avatar/u2.jpg"
+# DoIt 更改 | 0.2.7 主页显示的网站标题 (支持 HTML 格式)
+title = ""
+# 主页显示的网站副标题
+subtitle = "I Still Haven't Found What I'm Looking For"
+# 是否为副标题显示打字机动画
+typeit = true
+# 是否显示社交账号
+social = true
+# DoIt 新增 | 0.2.0 免责声明 (支持 HTML 格式)
+disclaimer = ""
+
+[languages.zh-cn.params.home.posts]
+enable = true
+# special amount of posts in each home posts page
+paginate = 10
+[[languages.zh-cn.menu.main]]
+identifier = "tags"
+pre = ""
+post = ""
+name = "标签"
+url = "/tags/"
+title = ""
+weight = 2
+[[languages.zh-cn.menu.main]]
+identifier = "categories"
+pre = ""
+post = ""
+name = "分类"
+url = "/categories/"
+title = ""
+weight = 3
 
 # Hugo 解析文档的配置
 [markup]
-  # 语法高亮设置 (https://gohugo.io/content-management/syntax-highlighting)
-  [markup.highlight]
-    # false 是必要的设置 (https://github.com/dillonzq/LoveIt/issues/158)
-    noClasses = false
+# 语法高亮设置
+[markup.highlight]
+codeFences = true
+guessSyntax = true
+lineNos = true
+lineNumbersInTable = true
+# false 是必要的设置
+# (https://github.com/dillonzq/DoIt/issues/158)
+noClasses = false
+# Goldmark 是 Hugo 0.60 以来的默认 Markdown 解析库
+[markup.goldmark]
+[markup.goldmark.extensions]
+definitionList = true
+footnote = true
+linkify = true
+strikethrough = true
+table = true
+taskList = true
+typographer = true
+[markup.goldmark.renderer]
+# 是否在文档中直接使用 HTML 标签
+unsafe = true
+# 目录设置
+[markup.tableOfContents]
+startLevel = 2
+endLevel = 6
+
+
+# 作者配置
+[author]
+name = "neepoo"
+link = "https://neepoo.dev/"
+
