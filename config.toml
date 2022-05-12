@@ -54,7 +54,11 @@ theme = "DoIt"
       Trello = false
       Mix = false
 
-
+[params.analytics]
+  enable = true
+  [params.analytics.google]
+    id = "G-CDK4FFQT1T"
+    anonymizeIP = true
 [menu]
   [[menu.main]]
     identifier = "posts"
