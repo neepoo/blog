@@ -15,6 +15,46 @@ theme = "DoIt"
   # DoIt 主题版本
   version = "0.2.X"
 
+[params.page.comment]
+  enable = true
+  [params.page.comment.utterances]
+  enable = true
+  repo = "neepoo/neepoo.dev"
+  issueTerm = "pathname"
+  label = ""
+  lightTheme = "github-light"
+  darkTheme = "github-dark"
+ [params.page.share]
+      enable = true
+      Twitter = true
+      Facebook = true
+      Linkedin = false
+      Whatsapp = true
+      Pinterest = false
+      Tumblr = false
+      HackerNews = false
+      Reddit = false
+      VK = false
+      Buffer = false
+      Xing = false
+      Line = true
+      Instapaper = false
+      Pocket = false
+      Digg = false
+      Stumbleupon = false
+      Flipboard = false
+      Weibo = true
+      Renren = false
+      Myspace = true
+      Blogger = true
+      Baidu = false
+      Odnoklassniki = false
+      Evernote = true
+      Skype = false
+      Trello = false
+      Mix = false
+
+
 [menu]
   [[menu.main]]
     identifier = "posts"
