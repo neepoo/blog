@@ -2,24 +2,31 @@ package foo
 
 import (
 	"bytes"
-	"crypto/sha512"
-	"encoding/hex"
+	"crypto/md5"
+	"io"
 	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-func TestEsSha512(t *testing.T) {
-	bs, err := os.ReadFile("/home/neepoo/下载/elasticsearch-8.3.1-linux-x86_64.tar.gz")
+func TestMD5Collision(t *testing.T) {
+	const (
+		ship  = "ship_coll.jpg"
+		plane = "plane_coll.jpg"
+	)
+	f1, err := os.ReadFile(ship)
 	require.NoError(t, err)
-	h := sha512.New()
-	_, err = h.Write(bs)
+	h1 := md5.New()
+	_, err = io.Copy(h1, bytes.NewReader(f1))
 	require.NoError(t, err)
-	got := h.Sum(nil)
-	want, err := os.ReadFile("/home/neepoo/下载/elasticsearch-8.3.1-linux-x86_64.tar.gz.sha512")
+
+	f2, err := os.ReadFile(plane)
 	require.NoError(t, err)
-	tokens := bytes.Fields(want)
-	require.Equal(t, 2, len(tokens))
-	require.Equal(t, hex.EncodeToString(tokens[0]), hex.EncodeToString(got))
+	h2 := md5.New()
+	_, err = io.Copy(h2, bytes.NewReader(f2))
+	require.NoError(t, err)
+
+	require.NotEqual(t, f1, f2)
+	require.Equal(t, h1.Sum(nil), h2.Sum(nil))
 }
