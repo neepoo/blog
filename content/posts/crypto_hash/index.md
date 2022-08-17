@@ -163,5 +163,7 @@ if __name__ == "__main__":
 
 [go map encode sort](https://github.com/golang/go/blob/de95dca32fb196d5f09bf5db4a6ba592907559c3/src/encoding/json/encode.go#L805)
 
+[Rabin-Karp](https://github.com/golang/go/blob/03fb5d7574eaceb26e99586dec20691663fe6b82/src/internal/bytealg/bytealg.go#L53)
+
 ### hash未解决的问题
 1. 他并没有能力证明自身的完整性
