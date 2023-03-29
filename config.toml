@@ -161,6 +161,14 @@ name = "作者"
 url = "/authors/"
 title = ""
 weight = 4
+[[languages.zh-cn.menu.main]]
+identifier = "about"
+pre = ""
+post = ""
+name = "关于"
+url = "/about/"
+title = ""
+weight = 4
 # Hugo 解析文档的配置
 [markup]
 # 语法高亮设置
