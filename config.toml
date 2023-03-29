@@ -7,13 +7,13 @@ languageCode = "zh-CN"
 hasCJKLanguage = true
 # 网站标题
 title = "neepoo写字，分享的地方"
-
+enableGitInfo = true
 # 更改使用 Hugo 构建网站时使用的默认主题
 theme = "DoIt"
 
 [params]
 # DoIt 主题版本
-version = "0.2.X"
+version = "0.3.X"
 [params.page]
 # DoIt 新增 | 0.2.0 是否在主页隐藏一篇文章
 hiddenFromHomePage = false
@@ -78,14 +78,14 @@ scale = true
 fullscreen = true
 # DoIt 更改 | 0.2.0 文章页面的分享信息设置
 [params.page.comment]
-    enable = true
-    [params.page.comment.utterances]
 enable = true
-repo = "neepoo/neepoo.dev"
-issueTerm = "pathname"
-label = ""
-lightTheme = "github-light"
-darkTheme = "github-dark"
+[params.page.comment.twikoo]
+enable = true
+envId = "https://neepoo-dev-twikoo1.vercel.app/"
+region = ""
+path = ""
+visitor = true
+commentCount = true
 [params.page.share]
 enable = true
 Twitter = true
@@ -153,7 +153,14 @@ name = "分类"
 url = "/categories/"
 title = ""
 weight = 3
-
+[[languages.zh-cn.menu.main]]
+identifier = "authors"
+pre = ""
+post = ""
+name = "作者"
+url = "/authors/"
+title = ""
+weight = 4
 # Hugo 解析文档的配置
 [markup]
 # 语法高亮设置
@@ -189,3 +196,15 @@ endLevel = 6
 name = "neepoo"
 link = "https://neepoo.dev/"
 
+[languages.zh-cn.params.social]
+GitHub = "neepoo"
+Twitter = "neepoo2"
+Instagram = "neepoo0813"
+Telegram = "nee_poo"
+Steam="neepoo"
+
+[taxonomies]
+author = "authors"
+category = "categories"
+tag = "tags"
+series = "series"
