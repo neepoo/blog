@@ -1,7 +1,7 @@
 ---
 title: "Linux kernel下的IPv4"
 date: 2022-05-12T17:47:25+08:00
-draft: false
+draft: true
 categories: ["技术"]
 tags: ["IPv4", "Network", "Kernel"]
 ---

@@ -1,5 +1,5 @@
 ---
-title: "Crypto_hash"
+title: "哈希算法"
 date: 2022-08-08T11:11:27+08:00
 draft: false
 tags: ["crypto", "加密", "hash", "哈希"]
