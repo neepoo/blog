@@ -207,9 +207,9 @@ link = "https://neepoo.dev/"
 [languages.zh-cn.params.social]
 GitHub = "neepoo"
 Twitter = "neepoo2"
-Instagram = "neepoo0813"
 Telegram = "nee_poo"
 Steam="neepoo"
+Spotify="neepoo"
 
 [taxonomies]
 author = "authors"
