@@ -166,4 +166,4 @@ if __name__ == "__main__":
 [Rabin-Karp](https://github.com/golang/go/blob/03fb5d7574eaceb26e99586dec20691663fe6b82/src/internal/bytealg/bytealg.go#L53)
 
 ### hash未解决的问题
-1. 他并没有能力证明自身的完整性
+1. 他并没有能力证明自身的完整性。
