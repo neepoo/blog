@@ -1,7 +1,7 @@
 ---
 title: "SQLPerformanceExplained 读书笔记"
 date: 2023-11-27T21:57:04+08:00
-draft: true
+draft: false
 categories: ["读书笔记", "技术"]
 tags: ["SQL", "数据库"]
 ---
