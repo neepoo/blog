@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title>认证加密 - neepoo写字，分享的地方</title><meta name="Description" content=""><meta property="og:title" content="认证加密" />
+<meta property="og:description" content="保密(Confidentiality)是为了私密数据不被别人看到，而加密是实现这一目标的方法。说到密码学我们大多数值得就是加密，因为它确实无" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/posts/crypto_authenticated_encryption/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-08-17T10:29:10+08:00" />
+<meta property="article:modified_time" content="2022-08-17T17:41:36+08:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="认证加密"/>
+<meta name="twitter:description" content="保密(Confidentiality)是为了私密数据不被别人看到，而加密是实现这一目标的方法。说到密码学我们大多数值得就是加密，因为它确实无"/>
+<meta name="twitter:site" content="@neepoo2"/>
+<meta name="application-name" content="neepoo写字，分享的地方">
+<meta name="apple-mobile-web-app-title" content="neepoo写字，分享的地方">
+
+<meta name="theme-color" content="#f8f8f8"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="canonical" href="http://localhost:1313/posts/crypto_authenticated_encryption/" /><link rel="prev" href="http://localhost:1313/posts/crypto_mac/" /><link rel="next" href="http://localhost:1313/posts/studying_py_by_reading_source_code/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/color.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "认证加密",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/localhost:1313\/posts\/crypto_authenticated_encryption\/"
+        },"genre": "posts","wordcount":  2571 ,
+        "url": "http:\/\/localhost:1313\/posts\/crypto_authenticated_encryption\/","datePublished": "2022-08-17T10:29:10+08:00","dateModified": "2022-08-17T17:41:36+08:00","publisher": {
+            "@type": "Organization",
+            "name": "neepoo"},"author": {
+                "@type": "Person",
+                "name": "neepoo"
+            },"description": ""
+    }
+    </script><script src="//instant.page/5.1.1" defer type="module" integrity="sha384-MWfCL6g1OTGsbSwfuMHc8+8J2u71/LA8dzlIN3ycajckxuZZmF+DNjdm7O6H3PSq"></script>
+</head>
+
+<body header-desktop="" header-mobile=""><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme); document.documentElement.style.setProperty('color-scheme', theme === 'light' ? 'light' : 'dark'); window.theme = theme; }
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('' === 'light' || '' === 'dark' || '' === 'black') setTheme(''), saveTheme(''); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="neepoo写字，分享的地方">neepoo写字，分享的地方</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 标签 </a><a class="menu-item" href="/categories/"> 分类 </a><a class="menu-item" href="/authors/"> 作者 </a><a class="menu-item" href="/about/"> 关于 </a><span class="menu-item delimiter"></span><a href="#" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="neepoo写字，分享的地方">neepoo写字，分享的地方</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">标签</a><a class="menu-item" href="/categories/" title="">分类</a><a class="menu-item" href="/authors/" title="">作者</a><a class="menu-item" href="/about/" title="">关于</a><a href="#" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#密码cipher是什么">密码(cipher)是什么？</a></li>
+    <li><a href="#高级加密标准advanced-encryption-standard">高级加密标准(Advanced Encryption Standard)</a>
+      <ul>
+        <li><a href="#aes提供的接口">AES提供的接口</a></li>
+        <li><a href="#aes内幕internal">AES内幕(internal)</a></li>
+        <li><a href="#如何加密不是128bits的明文">如何加密不是128bits的明文？</a>
+          <ul>
+            <li><a href="#填充padding">填充(padding)</a></li>
+            <li><a href="#分组密码工作模式mode-of-operation">分组密码工作模式(mode of operation)</a>
+              <ul>
+                <li><a href="#电子密码本ecbhttpszhwikipediaorgwikie58886e7bb84e5af86e7a081e5b7a5e4bd9ce6a8a1e5bc8fe794b5e5ad90e5af86e7a081e69cacefbc88ecbefbc89但是该方法的缺点在于同样的明文块会被加密成相同的密文块因此他不能很好的隐藏数据下图是一个很著名的列子ecb-penguin"><a href="https://zh.wikipedia.org/wiki/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F#%E7%94%B5%E5%AD%90%E5%AF%86%E7%A0%81%E6%9C%AC%EF%BC%88ECB%EF%BC%89">电子密码本(ECB)</a>。但是该方法的缺点在于同样的明文块会被加密成相同的密文块;因此他不能很好的隐藏数据。下图是一个很著名的列子(ECB penguin)。</a></li>
+                <li><a href="#密码块链接cbchttpszhwikipediaorgwikie58886e7bb84e5af86e7a081e5b7a5e4bd9ce6a8a1e5bc8fe5af86e7a081e59d97e993bee68ea5efbc88cbcefbc89"><a href="https://zh.wikipedia.org/wiki/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F#%E5%AF%86%E7%A0%81%E5%9D%97%E9%93%BE%E6%8E%A5%EF%BC%88CBC%EF%BC%89">密码块链接（CBC）</a>·</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li><a href="#aes-cbc-hmac">AES-CBC-HMAC</a></li>
+      </ul>
+    </li>
+    <li><a href="#认证加密">认证加密</a></li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">认证加密</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="https://neepoo.dev/" title="Author" target="_blank" rel="noopener noreferrer author" class="author">neepoo</a>
+                </span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-08-17">2022-08-17</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2022-08-17">2022-08-17</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 2571 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 6 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#密码cipher是什么">密码(cipher)是什么？</a></li>
+    <li><a href="#高级加密标准advanced-encryption-standard">高级加密标准(Advanced Encryption Standard)</a>
+      <ul>
+        <li><a href="#aes提供的接口">AES提供的接口</a></li>
+        <li><a href="#aes内幕internal">AES内幕(internal)</a></li>
+        <li><a href="#如何加密不是128bits的明文">如何加密不是128bits的明文？</a>
+          <ul>
+            <li><a href="#填充padding">填充(padding)</a></li>
+            <li><a href="#分组密码工作模式mode-of-operation">分组密码工作模式(mode of operation)</a>
+              <ul>
+                <li><a href="#电子密码本ecbhttpszhwikipediaorgwikie58886e7bb84e5af86e7a081e5b7a5e4bd9ce6a8a1e5bc8fe794b5e5ad90e5af86e7a081e69cacefbc88ecbefbc89但是该方法的缺点在于同样的明文块会被加密成相同的密文块因此他不能很好的隐藏数据下图是一个很著名的列子ecb-penguin"><a href="https://zh.wikipedia.org/wiki/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F#%E7%94%B5%E5%AD%90%E5%AF%86%E7%A0%81%E6%9C%AC%EF%BC%88ECB%EF%BC%89">电子密码本(ECB)</a>。但是该方法的缺点在于同样的明文块会被加密成相同的密文块;因此他不能很好的隐藏数据。下图是一个很著名的列子(ECB penguin)。</a></li>
+                <li><a href="#密码块链接cbchttpszhwikipediaorgwikie58886e7bb84e5af86e7a081e5b7a5e4bd9ce6a8a1e5bc8fe5af86e7a081e59d97e993bee68ea5efbc88cbcefbc89"><a href="https://zh.wikipedia.org/wiki/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F#%E5%AF%86%E7%A0%81%E5%9D%97%E9%93%BE%E6%8E%A5%EF%BC%88CBC%EF%BC%89">密码块链接（CBC）</a>·</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li><a href="#aes-cbc-hmac">AES-CBC-HMAC</a></li>
+      </ul>
+    </li>
+    <li><a href="#认证加密">认证加密</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><p>保密(Confidentiality)是为了私密数据不被别人看到，而加密是实现这一目标的方法。说到密码学我们大多数值得就是加密，因为它确实无处不在，它在现代社会中
+很多地方都有它来提供隐私和安全。在本文中，我会介绍到加密是什么，它解决了什么问题以及今天的应用程序是如何大量使用加密的。</p>
+<h2 id="密码cipher是什么" class="headerLink">
+    <a href="#%e5%af%86%e7%a0%81cipher%e6%98%af%e4%bb%80%e4%b9%88" class="header-mark"></a>密码(cipher)是什么？</h2><p>It’s like when you use slang to talk to your siblings about what you’ll do after school so
+your mom doesn’t know what you’re up to. 这句话是reddit r/crypto版主的原话。
+现如今的通信都要通过媒介传输，但是这些媒介默认是不安全的(消息可以被偷窥，
+消息能被篡改)。为了防止消息被偷窥，我们需要加密算法(encryption algorithm also called cipher)。通过加密，原始明文变得随机。</p>
+<p>为了实现加密，我们需要有</p>
+<ol>
+<li>密钥(secret key), 加密算法提供的安全性很大依赖于密钥的私密性(一旦创建之后，只有自己能读400)。</li>
+<li>原始明文(plaintext)。</li>
+</ol>
+<p>有了私密和明文，加密就能产生出一个密文(ciphertext)。有了密文，我们就可以让他在不安全的媒介上传输了。接收方收到密文后，就可以使用密钥来解密密文以获取
+原始明文。</p>
+<p>下图是一个加密算法的示例图片：
+<figure><a class="lightgallery" href="/posts/crypto_authenticated_encryption/sym_encryption.png" title="alice_and_bob" data-thumbnail="/posts/crypto_authenticated_encryption/sym_encryption.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_authenticated_encryption/sym_encryption.png"
+            srcset="/posts/crypto_authenticated_encryption/sym_encryption.png, /posts/crypto_authenticated_encryption/sym_encryption.png 1.5x, /posts/crypto_authenticated_encryption/sym_encryption.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_authenticated_encryption/sym_encryption.png" height="703"  width="1150" >
+    </a></figure>
+看到这里就有疑惑了，那这个密钥alice如何安全的给bob了？假如只依靠单个密钥那就是<a href="https://zh.m.wikipedia.org/zh-sg/%E5%85%88%E6%9C%89%E9%B8%A1%E8%BF%98%E6%98%AF%E5%85%88%E6%9C%89%E8%9B%8B" target="_blank" rel="noopener noreferrer">先有鸡还是先有蛋</a>
+.因此为了解决这个问题，又有了密钥交换算法。</p>
+<h2 id="高级加密标准advanced-encryption-standard" class="headerLink">
+    <a href="#%e9%ab%98%e7%ba%a7%e5%8a%a0%e5%af%86%e6%a0%87%e5%87%86advanced-encryption-standard" class="header-mark"></a>高级加密标准(Advanced Encryption Standard)</h2><p>1997年，<a href="https://en.wikipedia.org/wiki/National_Institute_of_Standards_and_Technology" target="_blank" rel="noopener noreferrer">NIST</a>开始了AES公开竞争以取代Data
+Encryption Standard(DES)
+,三年期间有15个不同的设计被提交，最终<a href="https://zh.wikipedia.org/zh-cn/%E9%AB%98%E7%BA%A7%E5%8A%A0%E5%AF%86%E6%A0%87%E5%87%86" target="_blank" rel="noopener noreferrer">Rijndael</a>
+由Vincent Rijmen和Joan Daemen设计的成为最终赢家。在2001年成为标准。
+<strong>bit security</strong>用来描述一个加密算法提供的安全级别。AES-128能够提供128位的安全性，也就是pow(2,128)
+次操作，这和之前介绍的SHA-128不一样，SHA-128只能提供64位的<a href="https://zh.wikipedia.org/wiki/%E7%94%9F%E6%97%A5%E6%94%BB%E5%87%BB" target="_blank" rel="noopener noreferrer">安全</a>
+。pow(2, 128)有多大，用英文表示出来给大家展示一下。
+340 undecillion 282 decillion 366 nonillion 920 octillion 938 septillion 463 sextillion 463 quintillion 374 quadrillion
+607
+trillion 431 billion 768 million 211 thousand 456</p>
+<h3 id="aes提供的接口" class="headerLink">
+    <a href="#aes%e6%8f%90%e4%be%9b%e7%9a%84%e6%8e%a5%e5%8f%a3" class="header-mark"></a>AES提供的接口</h3><p>拿AES-128举例</p>
+<ol>
+<li>可变长度的key</li>
+<li>固定长度(128bits/16bytes)的原文</li>
+<li>输出固定长度(128bits/16bytes)的密文</li>
+</ol>
+<p>因为AES接受固定长度的原文，因此也可以叫他块加密(block cipher)
+。技术上来说，当你的key固定且原文的长度固定，它输出的密文是一种排列(permutation).
+改变key，就会改变这个映射。排列也是可逆的，因此AES的加密和解密操作都是确定性的(deterministic)。映射关系如下图：
+<figure><a class="lightgallery" href="/posts/crypto_authenticated_encryption/AES_map.png" title="aes_permutation" data-thumbnail="/posts/crypto_authenticated_encryption/AES_map.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_authenticated_encryption/AES_map.png"
+            srcset="/posts/crypto_authenticated_encryption/AES_map.png, /posts/crypto_authenticated_encryption/AES_map.png 1.5x, /posts/crypto_authenticated_encryption/AES_map.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_authenticated_encryption/AES_map.png" height="460"  width="1123" >
+    </a></figure></p>
+<h3 id="aes内幕internal" class="headerLink">
+    <a href="#aes%e5%86%85%e5%b9%95internal" class="header-mark"></a>AES内幕(internal)</h3><p>AES是一种块加密算法(加密固定长度的块)，我们以AES-128举例。它先将16字节的明文转换成一个4*4的矩阵，如下图。
+<figure><a class="lightgallery" href="/posts/crypto_authenticated_encryption/aes_transform.png" title="plain2matrix" data-thumbnail="/posts/crypto_authenticated_encryption/aes_transform.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_authenticated_encryption/aes_transform.png"
+            srcset="/posts/crypto_authenticated_encryption/aes_transform.png, /posts/crypto_authenticated_encryption/aes_transform.png 1.5x, /posts/crypto_authenticated_encryption/aes_transform.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_authenticated_encryption/aes_transform.png" height="332"  width="646" >
+    </a></figure>
+然后经过<code>round function</code>，每次得到一个<code>state</code>最终得到密文，如下图。
+<figure><a class="lightgallery" href="/posts/crypto_authenticated_encryption/round.png" title="round" data-thumbnail="/posts/crypto_authenticated_encryption/round.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_authenticated_encryption/round.png"
+            srcset="/posts/crypto_authenticated_encryption/round.png, /posts/crypto_authenticated_encryption/round.png 1.5x, /posts/crypto_authenticated_encryption/round.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_authenticated_encryption/round.png" height="494"  width="502" >
+    </a></figure>
+AES-128会经过十轮。每轮会使用不同的<code>round key</code>,它来自于原始的<code>secret key</code>,这一过程叫做<code>key scheduler</code>。
+每一轮可以分成四个步骤：</p>
+<ol>
+<li>SubBytes</li>
+<li>ShiftRows</li>
+<li>MixColumns</li>
+<li>AddRoundKey</li>
+</ol>
+<p>这四种运算都是可逆的，前三种可以简单的看作&quot;矩阵的初等变换&quot;,最后一步它执行的是将当前的<code>state</code>和<code>round key</code>
+进行异或运算。为什么第四种也是可逆的？
+这是因为(a^b^b) = a^0 = a。下图是<code>round function</code>的示意图。
+<figure><a class="lightgallery" href="/posts/crypto_authenticated_encryption/round_function.png" title="round function" data-thumbnail="/posts/crypto_authenticated_encryption/round_function.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_authenticated_encryption/round_function.png"
+            srcset="/posts/crypto_authenticated_encryption/round_function.png, /posts/crypto_authenticated_encryption/round_function.png 1.5x, /posts/crypto_authenticated_encryption/round_function.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_authenticated_encryption/round_function.png" height="253"  width="1152" >
+    </a></figure>
+由于AES太常见了，现在的cpu都基于<code>AES-NI</code>直接提供了硬件支持。</p>
+<h3 id="如何加密不是128bits的明文" class="headerLink">
+    <a href="#%e5%a6%82%e4%bd%95%e5%8a%a0%e5%af%86%e4%b8%8d%e6%98%af128bits%e7%9a%84%e6%98%8e%e6%96%87" class="header-mark"></a>如何加密不是128bits的明文？</h3><p>明文不可能总是128bits的，那么AES是如何解决这个问题的了？</p>
+<h4 id="填充padding" class="headerLink">
+    <a href="#%e5%a1%ab%e5%85%85padding" class="header-mark"></a>填充(padding)</h4><p>假如我们要加密长文本，我们先将长文本划分为16bytes的块，如果最后一部分少于16字节，我们就需要填充。有很多填充的方式，但是一定要保证填充是可逆的，要不然就不能解密了。
+解密的时候我们要能够去掉填充获得原始的未填充的明文。最流行的填充机制是<a href="https://en.wikipedia.org/wiki/PKCS_7" target="_blank" rel="noopener noreferrer">PKCS#7</a>
+.它依据如下规则进行填充：
+填充的字节必须是需要填充的长度。如下图，我们需要填充8字节数据，因此填充的字节就是0x08。
+<figure><a class="lightgallery" href="/posts/crypto_authenticated_encryption/pkcs7_padding.png" title="pkcs7" data-thumbnail="/posts/crypto_authenticated_encryption/pkcs7_padding.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_authenticated_encryption/pkcs7_padding.png"
+            srcset="/posts/crypto_authenticated_encryption/pkcs7_padding.png, /posts/crypto_authenticated_encryption/pkcs7_padding.png 1.5x, /posts/crypto_authenticated_encryption/pkcs7_padding.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_authenticated_encryption/pkcs7_padding.png" height="220"  width="615" >
+    </a></figure></p>
+<p>填充完就需要对每一块进行加密了，这就引入了分组密码工作模式的概念。</p>
+<h4 id="分组密码工作模式mode-of-operation" class="headerLink">
+    <a href="#%e5%88%86%e7%bb%84%e5%af%86%e7%a0%81%e5%b7%a5%e4%bd%9c%e6%a8%a1%e5%bc%8fmode-of-operation" class="header-mark"></a>分组密码工作模式(mode of operation)</h4><h5 id="电子密码本ecbhttpszhwikipediaorgwikie58886e7bb84e5af86e7a081e5b7a5e4bd9ce6a8a1e5bc8fe794b5e5ad90e5af86e7a081e69cacefbc88ecbefbc89但是该方法的缺点在于同样的明文块会被加密成相同的密文块因此他不能很好的隐藏数据下图是一个很著名的列子ecb-penguin" class="headerLink">
+    <a href="#%e7%94%b5%e5%ad%90%e5%af%86%e7%a0%81%e6%9c%acecbhttpszhwikipediaorgwikie58886e7bb84e5af86e7a081e5b7a5e4bd9ce6a8a1e5bc8fe794b5e5ad90e5af86e7a081e69cacefbc88ecbefbc89%e4%bd%86%e6%98%af%e8%af%a5%e6%96%b9%e6%b3%95%e7%9a%84%e7%bc%ba%e7%82%b9%e5%9c%a8%e4%ba%8e%e5%90%8c%e6%a0%b7%e7%9a%84%e6%98%8e%e6%96%87%e5%9d%97%e4%bc%9a%e8%a2%ab%e5%8a%a0%e5%af%86%e6%88%90%e7%9b%b8%e5%90%8c%e7%9a%84%e5%af%86%e6%96%87%e5%9d%97%e5%9b%a0%e6%ad%a4%e4%bb%96%e4%b8%8d%e8%83%bd%e5%be%88%e5%a5%bd%e7%9a%84%e9%9a%90%e8%97%8f%e6%95%b0%e6%8d%ae%e4%b8%8b%e5%9b%be%e6%98%af%e4%b8%80%e4%b8%aa%e5%be%88%e8%91%97%e5%90%8d%e7%9a%84%e5%88%97%e5%ad%90ecb-penguin" class="header-mark"></a><a href="https://zh.wikipedia.org/wiki/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F#%E7%94%B5%E5%AD%90%E5%AF%86%E7%A0%81%E6%9C%AC%EF%BC%88ECB%EF%BC%89" target="_blank" rel="noopener noreferrer">电子密码本(ECB)</a>。但是该方法的缺点在于同样的明文块会被加密成相同的密文块;因此他不能很好的隐藏数据。下图是一个很著名的列子(ECB penguin)。</h5><p><figure><a class="lightgallery" href="/posts/crypto_authenticated_encryption/ECB_penguin.png" title="ecb" data-thumbnail="/posts/crypto_authenticated_encryption/ECB_penguin.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_authenticated_encryption/ECB_penguin.png"
+            srcset="/posts/crypto_authenticated_encryption/ECB_penguin.png, /posts/crypto_authenticated_encryption/ECB_penguin.png 1.5x, /posts/crypto_authenticated_encryption/ECB_penguin.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_authenticated_encryption/ECB_penguin.png" height="352"  width="566" >
+    </a></figure></p>
+<h5 id="密码块链接cbchttpszhwikipediaorgwikie58886e7bb84e5af86e7a081e5b7a5e4bd9ce6a8a1e5bc8fe5af86e7a081e59d97e993bee68ea5efbc88cbcefbc89" class="headerLink">
+    <a href="#%e5%af%86%e7%a0%81%e5%9d%97%e9%93%be%e6%8e%a5cbchttpszhwikipediaorgwikie58886e7bb84e5af86e7a081e5b7a5e4bd9ce6a8a1e5bc8fe5af86e7a081e59d97e993bee68ea5efbc88cbcefbc89" class="header-mark"></a><a href="https://zh.wikipedia.org/wiki/%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F#%E5%AF%86%E7%A0%81%E5%9D%97%E9%93%BE%E6%8E%A5%EF%BC%88CBC%EF%BC%89" target="_blank" rel="noopener noreferrer">密码块链接（CBC）</a>·</h5><p>为了解决ECB的问题，1976年IBM发明了<code>Cipher-block chaining</code>
+。在CBC模式中，每个明文块先与前一个密文块进行异或后，在进行加密。在这种方法中，每个密文块都依赖于它前面的所有明文块。同时，为了保证每条消息的唯一性，在第一个块中需要使用初始化向量。</p>
+<p>下图是CBC加密的流程图
+<figure><a class="lightgallery" href="/posts/crypto_authenticated_encryption/cbc_encryption.png" title="cbc_encryption" data-thumbnail="/posts/crypto_authenticated_encryption/cbc_encryption.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_authenticated_encryption/cbc_encryption.png"
+            srcset="/posts/crypto_authenticated_encryption/cbc_encryption.png, /posts/crypto_authenticated_encryption/cbc_encryption.png 1.5x, /posts/crypto_authenticated_encryption/cbc_encryption.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_authenticated_encryption/cbc_encryption.png" height="345"  width="1190" >
+    </a></figure></p>
+<p>下图是CBC解密的流程图
+<figure><a class="lightgallery" href="/posts/crypto_authenticated_encryption/cbc_decryption.png" title="cbc_decryption" data-thumbnail="/posts/crypto_authenticated_encryption/cbc_decryption.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_authenticated_encryption/cbc_decryption.png"
+            srcset="/posts/crypto_authenticated_encryption/cbc_decryption.png, /posts/crypto_authenticated_encryption/cbc_decryption.png 1.5x, /posts/crypto_authenticated_encryption/cbc_decryption.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_authenticated_encryption/cbc_decryption.png" height="360"  width="1207" >
+    </a></figure></p>
+<p>有了填充和操作模式并不足以使一个加密可用！这是为什么捏？因为缺乏完整性校验。</p>
+<h3 id="aes-cbc-hmac" class="headerLink">
+    <a href="#aes-cbc-hmac" class="header-mark"></a>AES-CBC-HMAC</h3><p>在cbc操作模式中，初始化向量<code>IV</code>是可以被伪造的。这会造成什么后果了？下图是一个<code>位翻转攻击fliping attacker</code>的例子。</p>
+<p><figure><a class="lightgallery" href="/posts/crypto_authenticated_encryption/flipping_attacker.png" title="flipping_attacker.png" data-thumbnail="/posts/crypto_authenticated_encryption/flipping_attacker.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_authenticated_encryption/flipping_attacker.png"
+            srcset="/posts/crypto_authenticated_encryption/flipping_attacker.png, /posts/crypto_authenticated_encryption/flipping_attacker.png 1.5x, /posts/crypto_authenticated_encryption/flipping_attacker.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_authenticated_encryption/flipping_attacker.png" height="564"  width="1264" >
+    </a></figure>
+位翻转攻击可以发生在上图中的1-4，修改了传输的密文，最终就会导致最终的解密失败。那有没有办法防止密文被修改了？<code>MAC</code>
+站了出来。下面直接给出AES-CBC-HMAC的构造示意图。
+<figure><a class="lightgallery" href="/posts/crypto_authenticated_encryption/aes_cbc_hmac.png" title="/posts/crypto_authenticated_encryption/aes_cbc_hmac.png" data-thumbnail="/posts/crypto_authenticated_encryption/aes_cbc_hmac.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_authenticated_encryption/aes_cbc_hmac.png"
+            srcset="/posts/crypto_authenticated_encryption/aes_cbc_hmac.png, /posts/crypto_authenticated_encryption/aes_cbc_hmac.png 1.5x, /posts/crypto_authenticated_encryption/aes_cbc_hmac.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_authenticated_encryption/aes_cbc_hmac.png" height="337"  width="942" >
+    </a></figure></p>
+<h2 id="认证加密" class="headerLink">
+    <a href="#%e8%ae%a4%e8%af%81%e5%8a%a0%e5%af%86" class="header-mark"></a>认证加密</h2><p>有了上面的介绍，我们知道加密的历史并不是完美的。</p>
+<ol>
+<li>只加密没有验证是危险的。</li>
+<li>滥用认证。</li>
+</ol>
+<p>最新的数据加密方式采用的<code>all-in-one</code>
+构造叫做<a href="https://en.wikipedia.org/wiki/Authenticated_encryption#Authenticated_encryption_with_associated_data_%28AEAD%29" target="_blank" rel="noopener noreferrer">aead</a>
+。它不仅给明文数据提供了私密性，也能够监测到任何对
+密文的修改。此外它还提供了一种认证<code>associated data</code>的方式。</p>
+<p>什么是<code>associated data</code>？它是可选的，它也可以提供包含原文相关的元信息用在加密和解密。该数据不会被加密，他和密文一起被传输。</p>
+<p>那么什么又叫做<code>all-in-one</code>呢？请看下图
+<figure><a class="lightgallery" href="/posts/crypto_authenticated_encryption/aead-all-in-one.png" title="all-in-one" data-thumbnail="/posts/crypto_authenticated_encryption/aead-all-in-one.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_authenticated_encryption/aead-all-in-one.png"
+            srcset="/posts/crypto_authenticated_encryption/aead-all-in-one.png, /posts/crypto_authenticated_encryption/aead-all-in-one.png 1.5x, /posts/crypto_authenticated_encryption/aead-all-in-one.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_authenticated_encryption/aead-all-in-one.png" height="738"  width="1181" >
+    </a></figure></p>
+<p>下面是一个使用js和和<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Web_Crypto_API" target="_blank" rel="noopener noreferrer">Web Crypto API</a>使用<code>AES-GCM</code>加密和解密的例子。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="kd">let</span> <span class="nx">config</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;AES-GCM&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">length</span><span class="o">:</span> <span class="mi">128</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nx">keyUsages</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;encrypt&#39;</span><span class="p">,</span> <span class="s1">&#39;decrypt&#39;</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nx">key</span> <span class="o">=</span> <span class="kr">await</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">subtle</span><span class="p">.</span><span class="nx">generateKey</span><span class="p">(</span><span class="nx">config</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="nx">keyUsages</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nx">iv</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="mi">12</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kr">await</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">getRandomValues</span><span class="p">(</span><span class="nx">iv</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nx">te</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">TextEncoder</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nx">ad</span> <span class="o">=</span> <span class="nx">te</span><span class="p">.</span><span class="nx">encode</span><span class="p">(</span><span class="s2">&#34;some associated data&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nx">plaintext</span> <span class="o">=</span> <span class="nx">te</span><span class="p">.</span><span class="nx">encode</span><span class="p">(</span><span class="s2">&#34;hello world&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nx">param</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;AES-GCM&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">iv</span><span class="o">:</span> <span class="nx">iv</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">additionalData</span><span class="o">:</span> <span class="nx">ad</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nx">ciphertext</span> <span class="o">=</span> <span class="kr">await</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">subtle</span><span class="p">.</span><span class="nx">encrypt</span><span class="p">(</span><span class="nx">param</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">plaintext</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nx">result</span> <span class="o">=</span> <span class="kr">await</span> <span class="nb">window</span><span class="p">.</span><span class="nx">crypto</span><span class="p">.</span><span class="nx">subtle</span><span class="p">.</span><span class="nx">decrypt</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">param</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">ciphertext</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="k">new</span> <span class="nx">TextDecoder</span><span class="p">(</span><span class="s2">&#34;utf-8&#34;</span><span class="p">).</span><span class="nx">decode</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>因此有了两种广泛采用的认证加密标准<code>AES-GCM</code>和<a href="https://en.wikipedia.org/wiki/ChaCha20-Poly1305" target="_blank" rel="noopener noreferrer">ChaCha20-Poly1205</a></p>
+</div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2022-08-17</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="#" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/crypto_authenticated_encryption/" data-title="认证加密" data-via="neepoo2"><i class="fab fa-twitter fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/crypto_mac/" class="prev" rel="prev" title="密码学之MAC"><i class="fas fa-angle-left fa-fw"></i>密码学之MAC</a>
+            <a href="/posts/studying_py_by_reading_source_code/" class="next" rel="next" title="阅读源码学习编码">阅读源码学习编码<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">
+                    由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreferrer" title="Hugo 0.123.8">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href="https://github.com/HEIGE-PCloud/DoIt" target="_blank" rel="noopener noreferrer" title="DoIt 0.3.0"><i class="far fa-edit fa-fw"></i> DoIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://neepoo.dev/" target="_blank" rel="noopener noreferrer">neepoo</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div class="assets"><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":30},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"sharerjs":true};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+</body>
+
+</html>

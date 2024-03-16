@@ -1,0 +1,13 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>C - 标签 - neepoo写字，分享的地方</title>
+        <link>http://localhost:1313/tags/c/</link>
+        <description>C - 标签 - neepoo写字，分享的地方</description>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Wed, 29 Mar 2023 20:00:21 &#43;0800</lastBuildDate><atom:link href="http://localhost:1313/tags/c/" rel="self" type="application/rss+xml" /><item>
+    <title>阅读源码学习编码</title>
+    <link>http://localhost:1313/posts/studying_py_by_reading_source_code/</link>
+    <pubDate>Wed, 29 Mar 2023 20:00:21 &#43;0800</pubDate><author>
+                        <name>韦智凯</name><uri>https://github.com/neepoo</uri><email>neepoowzk@gmail.com</email></author><guid>http://localhost:1313/posts/studying_py_by_reading_source_code/</guid>
+    <description><![CDATA[C语言 负数索引最近看redis源码，看到了这样的代码： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 typedef char *sds; struct __attribute__ ((__packed__)) sdshdr8 { uint8_t len; /* used */ uint8_t alloc; /* excluding the header and null terminator */ unsigned char flags; /* 3]]></description>
+</item></channel>
+</rss>

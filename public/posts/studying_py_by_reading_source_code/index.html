@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title>阅读源码学习编码 - neepoo写字，分享的地方</title><meta name="Description" content=""><meta property="og:title" content="阅读源码学习编码" />
+<meta property="og:description" content="C语言 负数索引最近看redis源码，看到了这样的代码： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 typedef char *sds; struct __attribute__ ((__packed__)) sdshdr8 { uint8_t len; /* used */ uint8_t alloc; /* excluding the header and null terminator */ unsigned char flags; /* 3" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/posts/studying_py_by_reading_source_code/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-03-29T20:00:21+08:00" />
+<meta property="article:modified_time" content="2023-03-29T23:42:29+08:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="阅读源码学习编码"/>
+<meta name="twitter:description" content="C语言 负数索引最近看redis源码，看到了这样的代码： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 typedef char *sds; struct __attribute__ ((__packed__)) sdshdr8 { uint8_t len; /* used */ uint8_t alloc; /* excluding the header and null terminator */ unsigned char flags; /* 3"/>
+<meta name="twitter:site" content="@neepoo2"/>
+<meta name="application-name" content="neepoo写字，分享的地方">
+<meta name="apple-mobile-web-app-title" content="neepoo写字，分享的地方">
+
+<meta name="theme-color" content="#f8f8f8"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="canonical" href="http://localhost:1313/posts/studying_py_by_reading_source_code/" /><link rel="prev" href="http://localhost:1313/posts/crypto_authenticated_encryption/" /><link rel="next" href="http://localhost:1313/posts/errshortwrite/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/color.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "阅读源码学习编码",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/localhost:1313\/posts\/studying_py_by_reading_source_code\/"
+        },"genre": "posts","keywords": "源码学习, C, TIL, 今天学到了什么","wordcount":  798 ,
+        "url": "http:\/\/localhost:1313\/posts\/studying_py_by_reading_source_code\/","datePublished": "2023-03-29T20:00:21+08:00","dateModified": "2023-03-29T23:42:29+08:00","publisher": {
+            "@type": "Organization",
+            "name": "neepoo"},"authors": [{
+                        "@type": "Person",
+                        "name": "neepoo"                    
+                    }],"description": ""
+    }
+    </script><script src="//instant.page/5.1.1" defer type="module" integrity="sha384-MWfCL6g1OTGsbSwfuMHc8+8J2u71/LA8dzlIN3ycajckxuZZmF+DNjdm7O6H3PSq"></script>
+</head>
+
+<body header-desktop="" header-mobile=""><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme); document.documentElement.style.setProperty('color-scheme', theme === 'light' ? 'light' : 'dark'); window.theme = theme; }
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('' === 'light' || '' === 'dark' || '' === 'black') setTheme(''), saveTheme(''); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="neepoo写字，分享的地方">neepoo写字，分享的地方</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 标签 </a><a class="menu-item" href="/categories/"> 分类 </a><a class="menu-item" href="/authors/"> 作者 </a><a class="menu-item" href="/about/"> 关于 </a><span class="menu-item delimiter"></span><a href="#" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="neepoo写字，分享的地方">neepoo写字，分享的地方</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">标签</a><a class="menu-item" href="/categories/" title="">分类</a><a class="menu-item" href="/authors/" title="">作者</a><a class="menu-item" href="/about/" title="">关于</a><a href="#" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#负数索引">负数索引</a></li>
+    <li><a href="#位域bitfield">位域(bitfield)</a></li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">阅读源码学习编码</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><span class='author'><i class="author fas fa-user-circle fa-fw"></i><span class='screen-reader-text'>  </span><a href='http://localhost:1313/authors/neepoo'>韦智凯</a></span>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/%E6%8A%80%E6%9C%AF/"><i class="far fa-folder fa-fw"></i>技术</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2023-03-29">2023-03-29</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2023-03-29">2023-03-29</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 798 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 2 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#负数索引">负数索引</a></li>
+    <li><a href="#位域bitfield">位域(bitfield)</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="c语言" class="headerLink">
+    <a href="#c%e8%af%ad%e8%a8%80" class="header-mark"></a>C语言</h1><h2 id="负数索引" class="headerLink">
+    <a href="#%e8%b4%9f%e6%95%b0%e7%b4%a2%e5%bc%95" class="header-mark"></a>负数索引</h2><p>最近看redis源码，看到了这样的代码：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="kt">char</span> <span class="o">*</span><span class="n">sds</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="nf">__attribute__</span> <span class="p">((</span><span class="n">__packed__</span><span class="p">))</span> <span class="n">sdshdr8</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint8_t</span> <span class="n">len</span><span class="p">;</span> <span class="cm">/* used */</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint8_t</span> <span class="n">alloc</span><span class="p">;</span> <span class="cm">/* excluding the header and null terminator */</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">flags</span><span class="p">;</span> <span class="cm">/* 3 lsb of type, 5 unused bits */</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">buf</span><span class="p">[];</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/* Free an sds string. No operation is performed if &#39;s&#39; is NULL. */</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">sdsfree</span><span class="p">(</span><span class="n">sds</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">s</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">s_free</span><span class="p">((</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">s</span><span class="o">-</span><span class="nf">sdsHdrSize</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]));</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>看到s[-1]我脑袋中第一个想法是C语言也支持向Python那样支持负数索引了？然后想到之前看c语言程序设计时书上说过:
+对于c语言中数组的索引其实是指针操作的语法糖，数组名可以被视为指向数组首元素的指针。因此，用数组名加上一个偏移量（即数组索引）可以得到数组中某个元素的地址，这个过程实际上就是一个指针运算。</p>
+<p>在<code>sdsfree</code>中其实参数<code>s</code>就是指向<code>sdshrd8</code>结构体(其实会依据字符串的长度分为5,8,16,32和64,这里就拿8举例)的<code>buf</code>字段，
+因为<code>s</code>所指向的<code>buf</code>所处的<code>sdshdr8</code>结构体是提前分配好空间的，因此<code>s[-1]</code>等价于 <code>*(s - 1)</code>也就是获取到flag字段。
+<code>sdsHdrSize(s[-1])</code>在这里就会获取到<code>sdshdr8</code>结构体的大小，然后相减得到<code>sdshdr8</code>结构体的首地址，然后再调用<code>s_free</code>释放内存。</p>
+<p>NOTE:因为在C中，内存是由程序员自己管理的，因此你做指针运算然后解引用的时候，一定要确保你的指针是指向了合法的内存地址，否则就是未定义行为。
+上面的代码中，因为<code>sdshdr8</code>结构体是提前分配好空间的，因此<code>s[-1]</code>是合法的.</p>
+<p>思考题：下面的代码会输出什么？</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">255</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">b</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mh">0x1</span><span class="p">,</span> <span class="mh">0x2</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;b[-1]=%hhu, b[0]=%hhu, b[1]=%hhu</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">b</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="位域bitfield" class="headerLink">
+    <a href="#%e4%bd%8d%e5%9f%9fbitfield" class="header-mark"></a>位域(bitfield)</h2><p>内核中的ipv4的header定义如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">iphdr</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#if defined(__LITTLE_ENDIAN_BITFIELD)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="n">__u8</span>	<span class="nl">ihl</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nl">version</span><span class="p">:</span><span class="mi">4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#elif defined (__BIG_ENDIAN_BITFIELD)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="n">__u8</span>	<span class="nl">version</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  		<span class="nl">ihl</span><span class="p">:</span><span class="mi">4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#else
+</span></span></span><span class="line"><span class="cl"><span class="cp">#error	&#34;Please fix &lt;asm/byteorder.h&gt;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="n">__u8</span>	<span class="n">tos</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">__be16</span>	<span class="n">tot_len</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">__be16</span>	<span class="n">id</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">__be16</span>	<span class="n">frag_off</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">__u8</span>	<span class="n">ttl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">__u8</span>	<span class="n">protocol</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">__sum16</span>	<span class="n">check</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">__struct_group</span><span class="p">(</span><span class="cm">/* no tag */</span><span class="p">,</span> <span class="n">addrs</span><span class="p">,</span> <span class="cm">/* no attrs */</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="n">__be32</span>	<span class="n">saddr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">__be32</span>	<span class="n">daddr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/*The options start here. */</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>结合<figure><a class="lightgallery" href="/posts/studying_py_by_reading_source_code/IPv4_Packet-en.svg.png" title="ipv4 header" data-thumbnail="/posts/studying_py_by_reading_source_code/IPv4_Packet-en.svg.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/studying_py_by_reading_source_code/IPv4_Packet-en.svg.png"
+            srcset="/posts/studying_py_by_reading_source_code/IPv4_Packet-en.svg.png, /posts/studying_py_by_reading_source_code/IPv4_Packet-en.svg.png 1.5x, /posts/studying_py_by_reading_source_code/IPv4_Packet-en.svg.png 2x"
+            sizes="auto"
+            alt="/posts/studying_py_by_reading_source_code/IPv4_Packet-en.svg.png" height="584"  width="1280" >
+    </a></figure>ipv4头部
+来看，知道version和ihl分别占4位和4位，合起来正好1字节。因此可以用位域来表示，这样可以节省内存空间。</p>
+</div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2023-03-29</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="#" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/studying_py_by_reading_source_code/" data-title="阅读源码学习编码" data-via="neepoo2" data-hashtags="源码学习,C,TIL,今天学到了什么"><i class="fab fa-twitter fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/">源码学习</a>,&nbsp;<a href="/tags/c/">C</a>,&nbsp;<a href="/tags/til/">TIL</a>,&nbsp;<a href="/tags/%E4%BB%8A%E5%A4%A9%E5%AD%A6%E5%88%B0%E4%BA%86%E4%BB%80%E4%B9%88/">今天学到了什么</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/crypto_authenticated_encryption/" class="prev" rel="prev" title="认证加密"><i class="fas fa-angle-left fa-fw"></i>认证加密</a>
+            <a href="/posts/errshortwrite/" class="next" rel="next" title="Golang中io包的ErrShortWrite">Golang中io包的ErrShortWrite<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">
+                    由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreferrer" title="Hugo 0.123.8">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href="https://github.com/HEIGE-PCloud/DoIt" target="_blank" rel="noopener noreferrer" title="DoIt 0.3.0"><i class="far fa-edit fa-fw"></i> DoIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://neepoo.dev/" target="_blank" rel="noopener noreferrer">neepoo</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div class="assets"><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":30},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"sharerjs":true};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+</body>
+
+</html>

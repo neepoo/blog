@@ -138,6 +138,14 @@ enable = true
 # special amount of posts in each home posts page
 paginate = 10
 [[languages.zh-cn.menu.main]]
+identifier = "posts"
+pre = ""
+post = ""
+name = "文章"
+url = "/posts/"
+title = ""
+weight = 1
+[[languages.zh-cn.menu.main]]
 identifier = "tags"
 pre = ""
 post = ""

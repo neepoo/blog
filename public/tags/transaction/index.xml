@@ -1,0 +1,14 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>Transaction - 标签 - neepoo写字，分享的地方</title>
+        <link>http://localhost:1313/tags/transaction/</link>
+        <description>Transaction - 标签 - neepoo写字，分享的地方</description>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Thu, 19 May 2022 16:45:17 &#43;0800</lastBuildDate><atom:link href="http://localhost:1313/tags/transaction/" rel="self" type="application/rss+xml" /><item>
+    <title>Database_transaction</title>
+    <link>http://localhost:1313/posts/database_transaction/</link>
+    <pubDate>Thu, 19 May 2022 16:45:17 &#43;0800</pubDate><author>
+        <name>neepoo</name>
+    </author><guid>http://localhost:1313/posts/database_transaction/</guid>
+    <description><![CDATA[为什么需要事务数据库系统在很多方面都很容易出错，譬如： 软硬件故障 应用程序崩溃 意外的网络中断 为了实现可靠性，系统需要处理这些故障，而事务(tr]]></description>
+</item></channel>
+</rss>

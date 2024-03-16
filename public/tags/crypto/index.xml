@@ -1,0 +1,21 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>Crypto - 标签 - neepoo写字，分享的地方</title>
+        <link>http://localhost:1313/tags/crypto/</link>
+        <description>Crypto - 标签 - neepoo写字，分享的地方</description>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Mon, 08 Aug 2022 11:11:27 &#43;0800</lastBuildDate><atom:link href="http://localhost:1313/tags/crypto/" rel="self" type="application/rss+xml" /><item>
+    <title>哈希算法</title>
+    <link>http://localhost:1313/posts/crypto_hash/</link>
+    <pubDate>Mon, 08 Aug 2022 11:11:27 &#43;0800</pubDate><author>
+        <name>neepoo</name>
+    </author><guid>http://localhost:1313/posts/crypto_hash/</guid>
+    <description><![CDATA[简介接收任意数据作为输入，返回独一无二的字节数组。输入相同，输出总是一致的。 什么是哈希？如果我们下载es, 会看到 它就是用sha512计算该文]]></description>
+</item><item>
+    <title>Crypto</title>
+    <link>http://localhost:1313/posts/crypto/</link>
+    <pubDate>Wed, 03 Aug 2022 10:24:00 &#43;0800</pubDate><author>
+        <name>neepoo</name>
+    </author><guid>http://localhost:1313/posts/crypto/</guid>
+    <description><![CDATA[概要循序渐进介绍各类加密算法，包括哈希算法、对称加密算法、非对称加密算法。他们的使用场景，基本原理。 相互信任是前提 两大主题 私密性 身份验证]]></description>
+</item></channel>
+</rss>

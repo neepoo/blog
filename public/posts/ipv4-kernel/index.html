@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title>Linux kernel下的IPv4 - neepoo写字，分享的地方</title><meta name="Description" content=""><meta property="og:title" content="Linux kernel下的IPv4" />
+<meta property="og:description" content="会覆盖到的内容 IPv4简介 IPv4在内核的执行 发送和接收IPv4包 广播包 IPv4转发 当发送的包大于MTU，需要对该包做分片(fragment" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/posts/ipv4-kernel/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-05-12T17:47:25+08:00" />
+<meta property="article:modified_time" content="2023-04-01T17:25:30+08:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Linux kernel下的IPv4"/>
+<meta name="twitter:description" content="会覆盖到的内容 IPv4简介 IPv4在内核的执行 发送和接收IPv4包 广播包 IPv4转发 当发送的包大于MTU，需要对该包做分片(fragment"/>
+<meta name="twitter:site" content="@neepoo2"/>
+<meta name="application-name" content="neepoo写字，分享的地方">
+<meta name="apple-mobile-web-app-title" content="neepoo写字，分享的地方">
+
+<meta name="theme-color" content="#f8f8f8"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="canonical" href="http://localhost:1313/posts/ipv4-kernel/" /><link rel="next" href="http://localhost:1313/posts/database_transaction/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/color.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Linux kernel下的IPv4",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/localhost:1313\/posts\/ipv4-kernel\/"
+        },"genre": "posts","keywords": "IPv4, Network, Kernel","wordcount":  691 ,
+        "url": "http:\/\/localhost:1313\/posts\/ipv4-kernel\/","datePublished": "2022-05-12T17:47:25+08:00","dateModified": "2023-04-01T17:25:30+08:00","publisher": {
+            "@type": "Organization",
+            "name": "neepoo"},"author": {
+                "@type": "Person",
+                "name": "neepoo"
+            },"description": ""
+    }
+    </script><script src="//instant.page/5.1.1" defer type="module" integrity="sha384-MWfCL6g1OTGsbSwfuMHc8+8J2u71/LA8dzlIN3ycajckxuZZmF+DNjdm7O6H3PSq"></script>
+</head>
+
+<body header-desktop="" header-mobile=""><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme); document.documentElement.style.setProperty('color-scheme', theme === 'light' ? 'light' : 'dark'); window.theme = theme; }
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('' === 'light' || '' === 'dark' || '' === 'black') setTheme(''), saveTheme(''); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="neepoo写字，分享的地方">neepoo写字，分享的地方</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 标签 </a><a class="menu-item" href="/categories/"> 分类 </a><a class="menu-item" href="/authors/"> 作者 </a><a class="menu-item" href="/about/"> 关于 </a><span class="menu-item delimiter"></span><a href="#" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="neepoo写字，分享的地方">neepoo写字，分享的地方</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">标签</a><a class="menu-item" href="/categories/" title="">分类</a><a class="menu-item" href="/authors/" title="">作者</a><a class="menu-item" href="/about/" title="">关于</a><a href="#" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#会覆盖到的内容">会覆盖到的内容</a></li>
+    <li><a href="#ipv4简介">IPv4简介</a>
+      <ul>
+        <li><a href="#ipv4头">IPV4头</a></li>
+        <li><a href="#接收ipv4包">接收IPv4包</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">Linux kernel下的IPv4</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="https://neepoo.dev/" title="Author" target="_blank" rel="noopener noreferrer author" class="author">neepoo</a>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/%E6%8A%80%E6%9C%AF/"><i class="far fa-folder fa-fw"></i>技术</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-05-12">2022-05-12</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2023-04-01">2023-04-01</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 691 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 2 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#会覆盖到的内容">会覆盖到的内容</a></li>
+    <li><a href="#ipv4简介">IPv4简介</a>
+      <ul>
+        <li><a href="#ipv4头">IPV4头</a></li>
+        <li><a href="#接收ipv4包">接收IPv4包</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="会覆盖到的内容" class="headerLink">
+    <a href="#%e4%bc%9a%e8%a6%86%e7%9b%96%e5%88%b0%e7%9a%84%e5%86%85%e5%ae%b9" class="header-mark"></a>会覆盖到的内容</h2><ol>
+<li>IPv4简介</li>
+<li>IPv4在内核的执行
+<ol>
+<li>发送和接收IPv4包
+<ol>
+<li>广播包</li>
+<li>IPv4转发</li>
+</ol>
+</li>
+<li>当发送的包大于MTU，需要对该包做分片(fragment)</li>
+<li>组装之前分片的包</li>
+</ol>
+</li>
+</ol>
+<h2 id="ipv4简介" class="headerLink">
+    <a href="#ipv4%e7%ae%80%e4%bb%8b" class="header-mark"></a>IPv4简介</h2><p>IPv4协议是今天互联网的核心协议之一，并且它路由了互联网的大部分流量。它在两台主机之间提供了端到端的连通性，并且具有转发包（路由）的功能。</p>
+<h3 id="ipv4头" class="headerLink">
+    <a href="#ipv4%e5%a4%b4" class="header-mark"></a>IPV4头</h3><p>每个IPv4包都以IP头开始，大小为20-60字节(bytes),一般来说都是20字节，除非<em>ip options</em>被使用，才可能到60字节。相比IPv6,其头大小固定是40字节。IPv4 header的结构如下图。</p>
+<p><figure><a class="lightgallery" href="./IPv4-header.png" title="IPv4-header" data-thumbnail="./IPv4-header.png">
+        <img
+            
+            loading="lazy"
+            src="./IPv4-header.png"
+            srcset="./IPv4-header.png, ./IPv4-header.png 1.5x, ./IPv4-header.png 2x"
+            sizes="auto"
+            alt="./IPv4-header.png">
+    </a></figure>
+IP头之后就是传输层的头，紧接着就是需要传输的数据(payload)。</p>
+<p>IPv4头包含了内核如何处理该包的信息，使用的协议，源/目的Ip地址，校验和，和为了分片的id，和ttl避免一个包被无止境的转发。这些信息存储在<em>iphdr</em>结构体中，该结构体定义在源码的<strong>include/uapi/linux/ip.h</strong> 下，该结构如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">iphdr</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#if defined(__LITTLE_ENDIAN_BITFIELD)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="n">__u8</span>	<span class="nl">ihl</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>  <span class="c1">// Internet Header Length 表示header大小是多少(20-60 bytes)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nl">version</span><span class="p">:</span><span class="mi">4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#elif defined (__BIG_ENDIAN_BITFIELD)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="n">__u8</span>	<span class="nl">version</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  		<span class="nl">ihl</span><span class="p">:</span><span class="mi">4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#else
+</span></span></span><span class="line"><span class="cl"><span class="cp">#error	&#34;Please fix &lt;asm/byteorder.h&gt;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="n">__u8</span>	<span class="n">tos</span><span class="p">;</span>  <span class="c1">// type of server
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">__be16</span>	<span class="n">tot_len</span><span class="p">;</span>  <span class="c1">// total length, 包括头的总大小
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">__be16</span>	<span class="n">id</span><span class="p">;</span>  <span class="c1">// sk_buffer分片的包，其id都相同，组装依赖该字段
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">__be16</span>	<span class="n">frag_off</span><span class="p">;</span> <span class="c1">// flags: high 3 bits(001 More fragments, set to all frags, except the last one, 010 Don&#39;t Fragment, 100 Congestion), flag_off: lower 13 bits
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">__u8</span>	<span class="n">ttl</span><span class="p">;</span>  <span class="c1">// time to live, each forwarding decreases the ttl by 1, when it reaches 0, the packet is discard
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">__u8</span>	<span class="n">protocol</span><span class="p">;</span>  <span class="c1">// L4 protocol of the package
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">__sum16</span>	<span class="n">check</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">__be32</span>	<span class="n">saddr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">__be32</span>	<span class="n">daddr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/*The options start here. 
+</span></span></span><span class="line"><span class="cl"><span class="cm">	注意只有前面的字段是必须的， options字段是可选的
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="接收ipv4包" class="headerLink">
+    <a href="#%e6%8e%a5%e6%94%b6ipv4%e5%8c%85" class="header-mark"></a>接收IPv4包</h3><p>接收函数位于<code>net/ipv4/ip_input.c/ip_rcv</code>,它会处理所有的IPv4包，包括多拨和广播</p>
+</div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2023-04-01</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="#" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/ipv4-kernel/" data-title="Linux kernel下的IPv4" data-via="neepoo2" data-hashtags="IPv4,Network,Kernel"><i class="fab fa-twitter fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/ipv4/">IPv4</a>,&nbsp;<a href="/tags/network/">Network</a>,&nbsp;<a href="/tags/kernel/">Kernel</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav">
+            <a href="/posts/database_transaction/" class="next" rel="next" title="Database_transaction">Database_transaction<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">
+                    由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreferrer" title="Hugo 0.123.8">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href="https://github.com/HEIGE-PCloud/DoIt" target="_blank" rel="noopener noreferrer" title="DoIt 0.3.0"><i class="far fa-edit fa-fw"></i> DoIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://neepoo.dev/" target="_blank" rel="noopener noreferrer">neepoo</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div class="assets"><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":30},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"sharerjs":true};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+</body>
+
+</html>

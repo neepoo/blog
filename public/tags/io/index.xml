@@ -1,0 +1,13 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>Io - 标签 - neepoo写字，分享的地方</title>
+        <link>http://localhost:1313/tags/io/</link>
+        <description>Io - 标签 - neepoo写字，分享的地方</description>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sat, 01 Apr 2023 16:48:31 &#43;0800</lastBuildDate><atom:link href="http://localhost:1313/tags/io/" rel="self" type="application/rss+xml" /><item>
+    <title>Golang中io包的ErrShortWrite</title>
+    <link>http://localhost:1313/posts/errshortwrite/</link>
+    <pubDate>Sat, 01 Apr 2023 16:48:31 &#43;0800</pubDate><author>
+                        <name>韦智凯</name><uri>https://github.com/neepoo</uri><email>neepoowzk@gmail.com</email></author><guid>http://localhost:1313/posts/errshortwrite/</guid>
+    <description><![CDATA[结论先说结论，在Golang中遇到io.ErrShortWrite错误时，也就是short write时，说明你写入的数据大小要比期望的要小，]]></description>
+</item></channel>
+</rss>

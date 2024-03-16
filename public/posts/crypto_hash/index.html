@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title>哈希算法 - neepoo写字，分享的地方</title><meta name="Description" content=""><meta property="og:title" content="哈希算法" />
+<meta property="og:description" content="简介接收任意数据作为输入，返回独一无二的字节数组。输入相同，输出总是一致的。 什么是哈希？如果我们下载es, 会看到 它就是用sha512计算该文" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/posts/crypto_hash/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-08-08T11:11:27+08:00" />
+<meta property="article:modified_time" content="2023-11-02T12:47:50+08:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="哈希算法"/>
+<meta name="twitter:description" content="简介接收任意数据作为输入，返回独一无二的字节数组。输入相同，输出总是一致的。 什么是哈希？如果我们下载es, 会看到 它就是用sha512计算该文"/>
+<meta name="twitter:site" content="@neepoo2"/>
+<meta name="application-name" content="neepoo写字，分享的地方">
+<meta name="apple-mobile-web-app-title" content="neepoo写字，分享的地方">
+
+<meta name="theme-color" content="#f8f8f8"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="canonical" href="http://localhost:1313/posts/crypto_hash/" /><link rel="prev" href="http://localhost:1313/posts/crypto/" /><link rel="next" href="http://localhost:1313/posts/crypto_mac/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/color.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "哈希算法",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/localhost:1313\/posts\/crypto_hash\/"
+        },"genre": "posts","keywords": "crypto, 加密, hash, 哈希","wordcount":  1768 ,
+        "url": "http:\/\/localhost:1313\/posts\/crypto_hash\/","datePublished": "2022-08-08T11:11:27+08:00","dateModified": "2023-11-02T12:47:50+08:00","publisher": {
+            "@type": "Organization",
+            "name": "neepoo"},"author": {
+                "@type": "Person",
+                "name": "neepoo"
+            },"description": ""
+    }
+    </script><script src="//instant.page/5.1.1" defer type="module" integrity="sha384-MWfCL6g1OTGsbSwfuMHc8+8J2u71/LA8dzlIN3ycajckxuZZmF+DNjdm7O6H3PSq"></script>
+</head>
+
+<body header-desktop="" header-mobile=""><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme); document.documentElement.style.setProperty('color-scheme', theme === 'light' ? 'light' : 'dark'); window.theme = theme; }
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('' === 'light' || '' === 'dark' || '' === 'black') setTheme(''), saveTheme(''); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="neepoo写字，分享的地方">neepoo写字，分享的地方</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 标签 </a><a class="menu-item" href="/categories/"> 分类 </a><a class="menu-item" href="/authors/"> 作者 </a><a class="menu-item" href="/about/"> 关于 </a><span class="menu-item delimiter"></span><a href="#" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="neepoo写字，分享的地方">neepoo写字，分享的地方</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">标签</a><a class="menu-item" href="/categories/" title="">分类</a><a class="menu-item" href="/authors/" title="">作者</a><a class="menu-item" href="/about/" title="">关于</a><a href="#" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#简介">简介</a>
+      <ul>
+        <li><a href="#什么是哈希">什么是哈希？</a></li>
+        <li><a href="#哈希函数具备的属性">哈希函数具备的属性</a></li>
+        <li><a href="#hash-实践">hash 实践</a>
+          <ul>
+            <li><a href="#commitment-scheme">commitment scheme</a></li>
+            <li><a href="#子资源完整性subresource-integrityhttpsdevelopermozillaorgen-usdocswebsecuritysubresource_integrity">子资源完整性<a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity">Subresource integrity</a></a></li>
+            <li><a href="#bittorrenthttpszhwikipediaorgwikibittorrent_e58d8fe8aeae"><a href="https://zh.wikipedia.org/wiki/BitTorrent_(%E5%8D%8F%E8%AE%AE)">BitTorrent</a></a></li>
+            <li><a href="#tor">TOR</a></li>
+          </ul>
+        </li>
+        <li><a href="#标准化的hash函数">标准化的hash函数</a>
+          <ul>
+            <li><a href="#更安全的hash算法">更安全的hash算法</a></li>
+            <li><a href="#sha-2">SHA-2</a></li>
+            <li><a href="#sha-3">SHA-3</a></li>
+            <li><a href="#shake和cshake两种可拓展的输出函数extendable-output-functions-xof">SHAKE和cSHAKE，两种可拓展的输出函数extendable output functions (XOF)。</a></li>
+            <li><a href="#tuple-hash">tuple hash</a></li>
+          </ul>
+        </li>
+        <li><a href="#hash未解决的问题">hash未解决的问题</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">哈希算法</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="https://neepoo.dev/" title="Author" target="_blank" rel="noopener noreferrer author" class="author">neepoo</a>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/%E6%8A%80%E6%9C%AF/"><i class="far fa-folder fa-fw"></i>技术</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-08-08">2022-08-08</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2023-11-02">2023-11-02</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 1768 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 4 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#简介">简介</a>
+      <ul>
+        <li><a href="#什么是哈希">什么是哈希？</a></li>
+        <li><a href="#哈希函数具备的属性">哈希函数具备的属性</a></li>
+        <li><a href="#hash-实践">hash 实践</a>
+          <ul>
+            <li><a href="#commitment-scheme">commitment scheme</a></li>
+            <li><a href="#子资源完整性subresource-integrityhttpsdevelopermozillaorgen-usdocswebsecuritysubresource_integrity">子资源完整性<a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity">Subresource integrity</a></a></li>
+            <li><a href="#bittorrenthttpszhwikipediaorgwikibittorrent_e58d8fe8aeae"><a href="https://zh.wikipedia.org/wiki/BitTorrent_(%E5%8D%8F%E8%AE%AE)">BitTorrent</a></a></li>
+            <li><a href="#tor">TOR</a></li>
+          </ul>
+        </li>
+        <li><a href="#标准化的hash函数">标准化的hash函数</a>
+          <ul>
+            <li><a href="#更安全的hash算法">更安全的hash算法</a></li>
+            <li><a href="#sha-2">SHA-2</a></li>
+            <li><a href="#sha-3">SHA-3</a></li>
+            <li><a href="#shake和cshake两种可拓展的输出函数extendable-output-functions-xof">SHAKE和cSHAKE，两种可拓展的输出函数extendable output functions (XOF)。</a></li>
+            <li><a href="#tuple-hash">tuple hash</a></li>
+          </ul>
+        </li>
+        <li><a href="#hash未解决的问题">hash未解决的问题</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="简介" class="headerLink">
+    <a href="#%e7%ae%80%e4%bb%8b" class="header-mark"></a>简介</h2><p>接收任意数据作为输入，返回独一无二的字节数组。输入相同，输出总是一致的。</p>
+<h3 id="什么是哈希" class="headerLink">
+    <a href="#%e4%bb%80%e4%b9%88%e6%98%af%e5%93%88%e5%b8%8c" class="header-mark"></a>什么是哈希？</h3><p>如果我们下载<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/targz.html" target="_blank" rel="noopener noreferrer">es</a>, 会看到<figure><a class="lightgallery" href="/posts/crypto_hash/es_sha512.png" title="如下步骤" data-thumbnail="/posts/crypto_hash/es_sha512.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_hash/es_sha512.png"
+            srcset="/posts/crypto_hash/es_sha512.png, /posts/crypto_hash/es_sha512.png 1.5x, /posts/crypto_hash/es_sha512.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_hash/es_sha512.png" height="327"  width="773" >
+    </a></figure>
+它就是用sha512计算该文件的哈希值，随后用户可以利用该哈希值来判断下载的文件是否<strong>完整</strong>。这种机制它们提供完整性和真实性(你信任该网站，通过https)。
+下图是哈希的一般流程。</p>
+<p><figure><a class="lightgallery" href="/posts/crypto_hash/hash_black_box.png" title="哈希流程" data-thumbnail="/posts/crypto_hash/hash_black_box.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_hash/hash_black_box.png"
+            srcset="/posts/crypto_hash/hash_black_box.png, /posts/crypto_hash/hash_black_box.png 1.5x, /posts/crypto_hash/hash_black_box.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_hash/hash_black_box.png" height="206"  width="605" >
+    </a></figure></p>
+<p>其中输入可以是任意长度的输入，音视频，图片等等。产生固定长度的输出，256 bit表示SHA-256.
+一些例子</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1">#echo -n &#34;hello guys&#34; | openssl dgst -sha256</span>
+</span></span><span class="line"><span class="cl"><span class="o">(</span>stdin<span class="o">)=</span> cc1ad2c685e6521a4eebcb5da8c8b82ed49cd4a93717cc80e91aeb29046b2cfb
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> -n <span class="s2">&#34;hello guys&#34;</span> <span class="p">|</span> openssl dgst -sha256
+</span></span><span class="line"><span class="cl"><span class="c1">#(stdin)= cc1ad2c685e6521a4eebcb5da8c8b82ed49cd4a93717cc80e91aeb29046b2cfb</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> -n <span class="s2">&#34;hella guys&#34;</span> <span class="p">|</span> openssl dgst -sha256
+</span></span><span class="line"><span class="cl"><span class="c1">#(stdin)= 0672c10004b4bf76bef963022a54eb4dcf322a1e416eef0cdb07b20cb0844bf2</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="哈希函数具备的属性" class="headerLink">
+    <a href="#%e5%93%88%e5%b8%8c%e5%87%bd%e6%95%b0%e5%85%b7%e5%a4%87%e7%9a%84%e5%b1%9e%e6%80%a7" class="header-mark"></a>哈希函数具备的属性</h3><ol>
+<li><a href="https://zh.wikipedia.org/wiki/%E5%8E%9F%E5%83%8F%E6%94%BB%E5%87%BB" target="_blank" rel="noopener noreferrer">原像抗性</a>(pre-image resistance)，对于所有预设输出，从计算角度应无法找到符合输入哈希的输出。例如，给定y，使得很难找到满足h(x) = y的x。</li>
+<li>次原像抗性(second pre-image resistance) 从计算角度无法找到任何与特定输入值有着相同输出的二次输入值。例如，给定x，使得很难找到满足h(x) = h(x′)的次原像x′ ≠ x。（Note: 实践不可能并非理论不可能，举例，sha-256总共就有pow(2, 256)种可能）</li>
+<li>碰撞抗性(collision resistance) 抗碰撞性是指无法从计算角度找到任何两个哈希值都相同的独特输入x，例如h(x) = h(x′)</li>
+</ol>
+<details>
+  <summary>hash的输出长度</summary>
+hash的输出长度并不是其必备的属性之一，但是为了满足属性123,实践中hash的输出长度至少应该是256bit,即32字节。256bit提供了最低128bit的 <a href="https://zh.wikipedia.org/wiki/%E7%94%9F%E6%97%A5%E6%94%BB%E5%87%BB">安全性</a>
+</details>
+<h3 id="hash-实践" class="headerLink">
+    <a href="#hash-%e5%ae%9e%e8%b7%b5" class="header-mark"></a>hash 实践</h3><h4 id="commitment-scheme" class="headerLink">
+    <a href="#commitment-scheme" class="header-mark"></a>commitment scheme</h4><p>承诺方案是一种加密原语，它允许用户承诺选定的值，同时使其他人看不到该值，并能够在以后公开所承诺的值。承诺方案的设计是为了使当事方在承诺之后不能更改价值或陈述</p>
+<h4 id="子资源完整性subresource-integrityhttpsdevelopermozillaorgen-usdocswebsecuritysubresource_integrity" class="headerLink">
+    <a href="#%e5%ad%90%e8%b5%84%e6%ba%90%e5%ae%8c%e6%95%b4%e6%80%a7subresource-integrityhttpsdevelopermozillaorgen-usdocswebsecuritysubresource_integrity" class="header-mark"></a>子资源完整性<a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity" target="_blank" rel="noopener noreferrer">Subresource integrity</a></h4><p>应用场景</p>
+<ol>
+<li>网站使用cdn引入一些js库</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl"><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&#34;https://example.com/example-framework.js&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">integrity</span><span class="o">=</span><span class="s2">&#34;sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8wC&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">crossorigin</span><span class="o">=</span><span class="s2">&#34;anonymous&#34;</span><span class="o">&gt;&lt;</span><span class="err">/script&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="bittorrenthttpszhwikipediaorgwikibittorrent_e58d8fe8aeae" class="headerLink">
+    <a href="#bittorrenthttpszhwikipediaorgwikibittorrent_e58d8fe8aeae" class="header-mark"></a><a href="https://zh.wikipedia.org/wiki/BitTorrent_%28%E5%8D%8F%E8%AE%AE%29" target="_blank" rel="noopener noreferrer">BitTorrent</a></h4><p>用户(peers)通过BitTorrent协议直接与其他用户(p2p)共享文件。为了共享某个文件，先分块(chuck)计算各自的hash,然后将该hash作为该块文件的标识。这样做最主要的用处是，某个用户可以从不同的用户那里下载到不同的chucks.</p>
+<blockquote>
+<p>magnet:?xt=urn:btih:b7b0fbab74a85d4ac170662c645982a862826455</p>
+</blockquote>
+<h4 id="tor" class="headerLink">
+    <a href="#tor" class="header-mark"></a>TOR</h4><p>技术无罪，但是该项技术总是和一些不美好的东西联系起来，就不说了，感兴趣的自己看看吧:)</p>
+<h3 id="标准化的hash函数" class="headerLink">
+    <a href="#%e6%a0%87%e5%87%86%e5%8c%96%e7%9a%84hash%e5%87%bd%e6%95%b0" class="header-mark"></a>标准化的hash函数</h3><p>之前我们已经提及了SHA-256和看过了es的SHA-512,这里我们会详细的介绍hash函数的工作原理，以及它们的区别。<a href="https://eprint.iacr.org/2004/199.pdf" target="_blank" rel="noopener noreferrer"><strong>MD5</strong></a>和 <a href="https://security.googleblog.com/2017/02/announcing-first-sha1-collision.html" target="_blank" rel="noopener noreferrer"><strong>SHA-1</strong></a>今日已经不再推荐使用，因为它们的安全性不够高。因此不再介绍</p>
+<h4 id="更安全的hash算法" class="headerLink">
+    <a href="#%e6%9b%b4%e5%ae%89%e5%85%a8%e7%9a%84hash%e7%ae%97%e6%b3%95" class="header-mark"></a>更安全的hash算法</h4><p><strong>SHA-2</strong>和<strong>SHA-3</strong>是当今更广泛使用的两类hash算法，其构造示意图如下
+<figure><a class="lightgallery" href="/posts/crypto_hash/sha2_sha3_construction.png" title="sha-2&amp;amp;sha-3" data-thumbnail="/posts/crypto_hash/sha2_sha3_construction.png">
+        <img
+            
+            loading="lazy"
+            src="/posts/crypto_hash/sha2_sha3_construction.png"
+            srcset="/posts/crypto_hash/sha2_sha3_construction.png, /posts/crypto_hash/sha2_sha3_construction.png 1.5x, /posts/crypto_hash/sha2_sha3_construction.png 2x"
+            sizes="auto"
+            alt="/posts/crypto_hash/sha2_sha3_construction.png" height="162"  width="597" >
+    </a></figure></p>
+<h4 id="sha-2" class="headerLink">
+    <a href="#sha-2" class="header-mark"></a>SHA-2</h4><p>SHA-2使用<a href="" rel=""></a>
+压缩函数的概念，给定两个不同大小的输入，输出的大小是其输入大小其一。
+如果它使用的压缩函数是具有碰撞抗性的，SHA_2也是具有碰撞抗性的。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">foo</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;crypto/sha256&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;testing&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// TestSHA256 
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 可以参考的资料：https://blog.boot.dev/cryptography/how-sha-2-works-step-by-step-sha-256/
+</span></span></span><span class="line"><span class="cl"><span class="c1">// https://github.com/golang/go/blob/master/src/crypto/sha256/sha256block.go
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">TestSHA256</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">const</span> <span class="nx">hw</span> <span class="p">=</span> <span class="s">&#34;hello world&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">sha</span> <span class="o">:=</span> <span class="nx">sha256</span><span class="p">.</span><span class="nf">New</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">sha</span><span class="p">.</span><span class="nf">Write</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">hw</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">sum</span> <span class="o">:=</span> <span class="nx">sha</span><span class="p">.</span><span class="nf">Sum</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">t</span><span class="p">.</span><span class="nf">Logf</span><span class="p">(</span><span class="s">&#34;%x&#34;</span><span class="p">,</span> <span class="nx">sum</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>SHA-2虽然广泛使用，但是他也有缺陷，比如<a href="https://maojui.me/Crypto/LEA/" target="_blank" rel="noopener noreferrer">长度拓展攻击</a>, 因此出现了SHA-3解决了长度拓展攻击。</p>
+<h4 id="sha-3" class="headerLink">
+    <a href="#sha-3" class="header-mark"></a>SHA-3</h4><p>在2007年，64个SHA-3的实现作为最终的候选者，五年之后，Keccak的实现成为最后的赢家。2015年，SHA-3被<a href="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf" target="_blank" rel="noopener noreferrer">标准化</a>，他是基于sponge构造实现的。</p>
+<h4 id="shake和cshake两种可拓展的输出函数extendable-output-functions-xof" class="headerLink">
+    <a href="#shake%e5%92%8ccshake%e4%b8%a4%e7%a7%8d%e5%8f%af%e6%8b%93%e5%b1%95%e7%9a%84%e8%be%93%e5%87%ba%e5%87%bd%e6%95%b0extendable-output-functions-xof" class="header-mark"></a>SHAKE和cSHAKE，两种可拓展的输出函数extendable output functions (XOF)。</h4><p>上面我们所介绍的SHA-2和SHA-3都是输出固定长度的摘要, 现在我们要介绍的XOF是输出自定义长度的摘要。能够输出自定义长度的话它的用途就更加广泛了，可以用做
+生成随机数，<a href="https://en.wikipedia.org/wiki/Key_derivation_function" target="_blank" rel="noopener noreferrer">密钥派生函数</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">ExampleCShake</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">c1</span> <span class="o">:=</span> <span class="nx">sha3</span><span class="p">.</span><span class="nf">NewCShake128</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;my_hash&#34;</span><span class="p">),</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">out</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">c1</span><span class="p">.</span><span class="nf">Write</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;hello world&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">c1</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">out</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%x&#34;</span><span class="p">,</span> <span class="nx">out</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Output:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// 7d5b3c7cb868c51a47b7a5cfb92d6d18
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="tuple-hash" class="headerLink">
+    <a href="#tuple-hash" class="header-mark"></a>tuple hash</h4><p>如果我们有一个结构体，但是我们只需要用它的某些字段计算hash,那我们就可以使用tuple hash。
+为什么需要它，请看下面的例子</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">echo</span> -n <span class="s2">&#34;Alice&#34;&#34;Bob&#34;&#34;100&#34;&#34;15&#34;</span> <span class="p">|</span> openssl dgst -sha3-256
+</span></span><span class="line"><span class="cl"><span class="c1">#(stdin)= 34d6b397c7f2e8a303fc8e39d283771c0397dad74cef08376e27483efc29bb02</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> -n <span class="s2">&#34;Alice&#34;&#34;Bob&#34;&#34;1001&#34;&#34;5&#34;</span> <span class="p">|</span> openssl dgst -sha3-256
+</span></span><span class="line"><span class="cl"><span class="c1">#(stdin)= 34d6b397c7f2e8a303fc8e39d283771c0397dad74cef08376e27483efc29bb02</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># pip install pycryptodome</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">Crypto.Hash</span> <span class="kn">import</span> <span class="n">TupleHash128</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">foo1</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">hd</span> <span class="o">=</span> <span class="n">TupleHash128</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">digest_bytes</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">hd</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">hd</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;10&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">hd</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;10&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">hd</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">foo2</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">hd</span> <span class="o">=</span> <span class="n">TupleHash128</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">digest_bytes</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">hd</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">hd</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">hd</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;010&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">hd</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&#34;__main__&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">foo1</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">foo2</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># output:</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 746989f1ce26e4384d68a404e65df436</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 74e690c2735cb75c5e8bcf311aab9de6</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><a href="https://github.com/golang/go/blob/de95dca32fb196d5f09bf5db4a6ba592907559c3/src/encoding/json/encode.go#L805" target="_blank" rel="noopener noreferrer">go map encode sort</a></p>
+<p><a href="https://github.com/golang/go/blob/03fb5d7574eaceb26e99586dec20691663fe6b82/src/internal/bytealg/bytealg.go#L53" target="_blank" rel="noopener noreferrer">Rabin-Karp</a></p>
+<h3 id="hash未解决的问题" class="headerLink">
+    <a href="#hash%e6%9c%aa%e8%a7%a3%e5%86%b3%e7%9a%84%e9%97%ae%e9%a2%98" class="header-mark"></a>hash未解决的问题</h3><ol>
+<li>他并没有能力证明自身的完整性。</li>
+</ol>
+</div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2023-11-02</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="#" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/crypto_hash/" data-title="哈希算法" data-via="neepoo2" data-hashtags="crypto,加密,hash,哈希"><i class="fab fa-twitter fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/crypto/">Crypto</a>,&nbsp;<a href="/tags/%E5%8A%A0%E5%AF%86/">加密</a>,&nbsp;<a href="/tags/hash/">Hash</a>,&nbsp;<a href="/tags/%E5%93%88%E5%B8%8C/">哈希</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/crypto/" class="prev" rel="prev" title="Crypto"><i class="fas fa-angle-left fa-fw"></i>Crypto</a>
+            <a href="/posts/crypto_mac/" class="next" rel="next" title="密码学之MAC">密码学之MAC<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">
+                    由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreferrer" title="Hugo 0.123.8">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href="https://github.com/HEIGE-PCloud/DoIt" target="_blank" rel="noopener noreferrer" title="DoIt 0.3.0"><i class="far fa-edit fa-fw"></i> DoIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://neepoo.dev/" target="_blank" rel="noopener noreferrer">neepoo</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div class="assets"><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":30},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"sharerjs":true};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+</body>
+
+</html>

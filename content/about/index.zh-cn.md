@@ -6,7 +6,7 @@ draft: false
 authors: [neepoo]
 ---
 
-大学时觉得`neepoo`很顺口，就一直叫这个了。当前正在求职，之前一直在一家网安公司从事后台开发。
+大学时觉得`neepoo`很顺口，就一直叫这个了。当前正在求职，这是我的[简历](/posts/resumes/resumes/),如果您对我感兴趣请联系我。之前一直在一家网安公司从事后台开发。
 
 
 之前写Python现在写Golang,开发环境演进史manjaro->opensuse tumbleweed -> arch。对于存储,Rust和Web3感兴趣。
