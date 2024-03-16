@@ -11,5 +11,7 @@ authors: [neepoo]
 
 之前写Python现在写Golang,开发环境演进史manjaro->opensuse tumbleweed -> arch。对于存储,Rust和Web3感兴趣。
 
+业余跑步爱好者，一开始是想通过跑步达成减重/脂，预定目标完成后养成了跑步的习惯，当前半马PB 1h43m13s,希望24年内能够全马破三。
+
 有了这个博客之后,希望能够定期输出:)
 ,我的邮箱是neepoowzk@gmail.com，你可以通过这个联系我。我别的平台的账户可以在[https://neepoo.dev](https://neepoo.dev)首页上看到。

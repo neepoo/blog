@@ -213,12 +213,17 @@ name = "neepoo"
 link = "https://neepoo.dev/"
 
 [languages.zh-cn.params.social]
+
 GitHub = "neepoo"
 Twitter = "neepoo2"
 Telegram = "nee_poo"
 Steam="neepoo"
 Spotify="neepoo"
-
+[params.social.Strava]
+weight = 0
+id = "104585121"
+prefix = "https://www.strava.com/athletes/"
+title = "Strava"
 [taxonomies]
 author = "authors"
 category = "categories"
